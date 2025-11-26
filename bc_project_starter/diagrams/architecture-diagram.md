@@ -321,13 +321,3 @@ flowchart TB
 ```
 
 ---
-
-## Summary
-
-All diagrams use **Mermaid syntax** that should render in:
-- GitHub
-- VSCode (with Markdown Preview Mermaid Support extension)
-- GitLab
-- Many markdown viewers
-
-If not rendering, install the **Markdown Preview Mermaid Support** extension in VSCode.
