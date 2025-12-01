@@ -24,6 +24,25 @@ contract DataSharing is ReentrancyGuard {
     // Every time someone grants consent, they get 10 tokens (with 18 decimals like most tokens)
     uint256 public constant REWARD_PER_CONSENT = 10 * 10**18;
 
+    // Audit log structure for permanent on-chain storage
+    struct AccessLog {
+        address owner;              // Student who owns the credential
+        address requester;          // Who tried to access
+        bytes32 credentialTypeHash;
+        bytes32 credentialHash;      // Hash returned (or 0x0 if denied)
+        uint256 timestamp;
+        bool granted;               // true = GRANTED, false = DENIED
+        string reason;              // Reason if denied (empty if granted)
+    }
+
+    // On-chain storage for all access attempts
+    AccessLog[] public accessLogs;
+    uint256 public totalAccessLogs;
+
+    // Indexed mappings for efficient querying
+    mapping(address owner => uint256[]) public ownerLogIndices;      // Which logs belong to this owner
+    mapping(address requester => uint256[]) public requesterLogIndices; // Which logs belong to this requester
+
     // Fired when we give someone tokens for granting consent
     event TokensRewarded(
         address indexed recipient,
@@ -108,7 +127,7 @@ contract DataSharing is ReentrancyGuard {
 
     // This is what requesters (employers) call to actually get the credential hash.
     // First we check if they have valid consent, then we retrieve the hash from
-    // DigitalIdentity and return it. Everything gets logged.
+    // DigitalIdentity and return it. Everything gets logged both as events and on-chain.
     function AccessData(
         address owner,
         bytes32 credentialTypeHash
@@ -121,7 +140,23 @@ contract DataSharing is ReentrancyGuard {
         );
 
         if (!consentValid) {
-            // Log the denied access attempt
+            // Store denied access attempt in on-chain log
+            accessLogs.push(AccessLog({
+                owner: owner,
+                requester: msg.sender,
+                credentialTypeHash: credentialTypeHash,
+                credentialHash: bytes32(0),  // No hash returned for denied access
+                timestamp: block.timestamp,
+                granted: false,
+                reason: "Consent invalid or expired"
+            }));
+
+            uint256 logIndex = accessLogs.length - 1;
+            ownerLogIndices[owner].push(logIndex);
+            requesterLogIndices[msg.sender].push(logIndex);
+            totalAccessLogs++;
+
+            // Emit event for off-chain indexing
             emit AccessDenied(
                 owner,
                 msg.sender,
@@ -138,7 +173,23 @@ contract DataSharing is ReentrancyGuard {
             credentialTypeHash
         );
 
-        // EFFECTS: Log successful access
+        // Store successful access in on-chain log
+        accessLogs.push(AccessLog({
+            owner: owner,
+            requester: msg.sender,
+            credentialTypeHash: credentialTypeHash,
+            credentialHash: credentialHash,
+            timestamp: block.timestamp,
+            granted: true,
+            reason: ""
+        }));
+
+        uint256 logIndex = accessLogs.length - 1;
+        ownerLogIndices[owner].push(logIndex);
+        requesterLogIndices[msg.sender].push(logIndex);
+        totalAccessLogs++;
+
+        // Emit event for off-chain indexing
         emit AccessGranted(
             owner,
             msg.sender,
@@ -185,5 +236,53 @@ contract DataSharing is ReentrancyGuard {
     // Get someone's token balance
     function GetTokenBalance(address account) external view returns (uint256) {
         return rewardTokenContract.balanceOf(account);
+    }
+
+    // ============================================
+    // Audit Log Query Functions
+    // ============================================
+
+    // Get all access logs for a specific owner (student)
+    // Returns all access attempts to this student's credentials
+    function getAccessLogsForOwner(address owner) 
+        external 
+        view 
+        returns (AccessLog[] memory) 
+    {
+        uint256[] memory indices = ownerLogIndices[owner];
+        AccessLog[] memory logs = new AccessLog[](indices.length);
+        
+        for (uint256 i = 0; i < indices.length; i++) {
+            logs[i] = accessLogs[indices[i]];
+        }
+        
+        return logs;
+    }
+
+    // Get all access logs for a specific requester (employer)
+    // Returns all access attempts made by this requester
+    function getAccessLogsForRequester(address requester) 
+        external 
+        view 
+        returns (AccessLog[] memory) 
+    {
+        uint256[] memory indices = requesterLogIndices[requester];
+        AccessLog[] memory logs = new AccessLog[](indices.length);
+        
+        for (uint256 i = 0; i < indices.length; i++) {
+            logs[i] = accessLogs[indices[i]];
+        }
+        
+        return logs;
+    }
+
+    // Get a specific log by index
+    function getAccessLog(uint256 index) 
+        external 
+        view 
+        returns (AccessLog memory) 
+    {
+        require(index < accessLogs.length, "Log does not exist");
+        return accessLogs[index];
     }
 }
