@@ -91,7 +91,12 @@ bc_project_starter/
 │   ├── demo-with-files.js       # File-based demo (realistic)
 │   └── interactive-cli.js       # Interactive CLI (best for testing)
 │
-├── test/                        # Tests (need to write these)
+├── test/                        # Tests (94 tests, all passing)
+│   ├── DigitalIdentity.test.js  # 19 tests
+│   ├── ConsentManager.test.js   # 26 tests
+│   ├── RewardToken.test.js      # 19 tests
+│   ├── Integration.test.js      # 15 tests
+│   └── DataSharing.audit.test.js # 15 tests
 │
 ├── docs/                        # Design documentation
 │   ├── 01-functional-requirements.md
@@ -99,7 +104,7 @@ bc_project_starter/
 │   ├── 03-smart-contract-design.md
 │   └── 04-implementation-guide.md
 │
-└── diagrams/                    # System diagrams
+└── docs/diagrams/               # System diagrams
     ├── architecture-diagram.md
     ├── consent-workflow.md
     └── access-workflow.md
@@ -124,16 +129,35 @@ npx hardhat compile
 ### Run Demos
 
 **Option 1: Interactive CLI (Recommended)**
+
+*Standalone mode (deploys its own contracts):*
 ```bash
 npx hardhat run scripts/interactive-cli.js
 ```
-This gives you a menu where you can register users, store credentials, grant/revoke consent, and see token balances. Best way to understand how everything works.
+Deploys fresh contracts in-memory, nothing persists after exit. Quick testing.
 
-**Option 2: File-Based Demo**
+*Connected mode (uses running node):*
+First start a local node and deploy contracts:
 ```bash
-npx hardhat run scripts/demo-with-files.js
+# Terminal 1
+npx hardhat node
+
+# Terminal 2
+npx hardhat run scripts/deploy.js --network localhost
+npx hardhat run scripts/interactive-cli.js --network localhost
 ```
-This creates actual diploma files, stores their hashes, and demonstrates the verification process.
+Connects to deployed contracts, shares blockchain with other demos. You'll see transactions appear in the node terminal.
+
+**Option 2: File-Based Demo (Shows Blockchain Activity)**
+First start a local node in one terminal:
+```bash
+npx hardhat node
+```
+Then in another terminal:
+```bash
+npx hardhat run scripts/demo-with-files.js --network localhost
+```
+This creates actual diploma files, stores their hashes, and demonstrates the verification process. You'll see blockchain activity (blocks, transactions) in the node terminal.
 
 **Option 3: Basic Demo**
 ```bash
@@ -244,19 +268,22 @@ For a detailed explanation of how this would work on a real blockchain with real
 
 ---
 
-## What We Still Need (Step 4)
+## Running Tests
 
-### Tests to Write
+All tests are complete and passing:
 
-- `test/DigitalIdentity.test.js`
-- `test/ConsentManager.test.js`
-- `test/DataSharing.test.js`
-- `test/RewardToken.test.js`
-- `test/Integration.test.js`
+```bash
+npx hardhat test
+```
 
-### Gas Analysis
+This runs 94 tests across 5 test files covering all contract functionality.
 
-Run tests with gas reporter to generate cost tables.
+To see gas costs:
+
+```bash
+npx hardhat test
+# Results saved to gas-report.txt
+```
 
 ---
 

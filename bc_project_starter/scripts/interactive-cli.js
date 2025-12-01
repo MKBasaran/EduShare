@@ -17,36 +17,63 @@ function question(prompt) {
 }
 
 async function deploy() {
-  console.log("\nDeploying contracts...");
-
   accounts = await hre.ethers.getSigners();
 
-  const DigitalIdentity = await hre.ethers.getContractFactory("DigitalIdentity");
-  digitalIdentity = await DigitalIdentity.deploy();
-  await digitalIdentity.waitForDeployment();
+  // Check if we're running on localhost network and deployment file exists
+  const deploymentPath = path.join(__dirname, "..", "deployment-addresses.json");
+  const networkName = hre.network.name;
 
-  const ConsentManager = await hre.ethers.getContractFactory("ConsentManager");
-  consentManager = await ConsentManager.deploy(await digitalIdentity.getAddress());
-  await consentManager.waitForDeployment();
+  if (networkName === "localhost" && fs.existsSync(deploymentPath)) {
+    console.log("\nConnecting to deployed contracts on localhost...");
 
-  const RewardToken = await hre.ethers.getContractFactory("RewardToken");
-  rewardToken = await RewardToken.deploy();
-  await rewardToken.waitForDeployment();
+    const deploymentData = JSON.parse(fs.readFileSync(deploymentPath, "utf8"));
+    const addresses = deploymentData.contracts;
 
-  const DataSharing = await hre.ethers.getContractFactory("DataSharing");
-  dataSharing = await DataSharing.deploy(
-    await digitalIdentity.getAddress(),
-    await consentManager.getAddress(),
-    await rewardToken.getAddress()
-  );
-  await dataSharing.waitForDeployment();
+    const DigitalIdentity = await hre.ethers.getContractFactory("DigitalIdentity");
+    digitalIdentity = DigitalIdentity.attach(addresses.DigitalIdentity);
 
-  const MINTER_ROLE = hre.ethers.keccak256(hre.ethers.toUtf8Bytes("MINTER_ROLE"));
-  await rewardToken.grantRole(MINTER_ROLE, await dataSharing.getAddress());
+    const ConsentManager = await hre.ethers.getContractFactory("ConsentManager");
+    consentManager = ConsentManager.attach(addresses.ConsentManager);
 
-  console.log("All contracts deployed!");
-  console.log("   DigitalIdentity:", await digitalIdentity.getAddress());
-  console.log("   DataSharing:", await dataSharing.getAddress());
+    const RewardToken = await hre.ethers.getContractFactory("RewardToken");
+    rewardToken = RewardToken.attach(addresses.RewardToken);
+
+    const DataSharing = await hre.ethers.getContractFactory("DataSharing");
+    dataSharing = DataSharing.attach(addresses.DataSharing);
+
+    console.log("Connected to existing contracts!");
+    console.log("   DigitalIdentity:", addresses.DigitalIdentity);
+    console.log("   DataSharing:", addresses.DataSharing);
+  } else {
+    console.log("\nDeploying fresh contracts...");
+
+    const DigitalIdentity = await hre.ethers.getContractFactory("DigitalIdentity");
+    digitalIdentity = await DigitalIdentity.deploy();
+    await digitalIdentity.waitForDeployment();
+
+    const ConsentManager = await hre.ethers.getContractFactory("ConsentManager");
+    consentManager = await ConsentManager.deploy(await digitalIdentity.getAddress());
+    await consentManager.waitForDeployment();
+
+    const RewardToken = await hre.ethers.getContractFactory("RewardToken");
+    rewardToken = await RewardToken.deploy();
+    await rewardToken.waitForDeployment();
+
+    const DataSharing = await hre.ethers.getContractFactory("DataSharing");
+    dataSharing = await DataSharing.deploy(
+      await digitalIdentity.getAddress(),
+      await consentManager.getAddress(),
+      await rewardToken.getAddress()
+    );
+    await dataSharing.waitForDeployment();
+
+    const MINTER_ROLE = hre.ethers.keccak256(hre.ethers.toUtf8Bytes("MINTER_ROLE"));
+    await rewardToken.grantRole(MINTER_ROLE, await dataSharing.getAddress());
+
+    console.log("All contracts deployed!");
+    console.log("   DigitalIdentity:", await digitalIdentity.getAddress());
+    console.log("   DataSharing:", await dataSharing.getAddress());
+  }
 }
 
 async function showMenu() {

@@ -392,9 +392,24 @@ You can only make new transactions (like RevokeConsent).
 
 The CLI simulates multiple users on one computer for testing. It's like playing chess against yourself - you can see both sides.
 
+**Two modes:**
+
+*Standalone mode (default):*
 ```bash
 npx hardhat run scripts/interactive-cli.js
 ```
+Deploys fresh contracts in-memory. Nothing persists after exit. Quick testing without needing a separate node.
+
+*Connected mode (with running node):*
+```bash
+# Terminal 1
+npx hardhat node
+
+# Terminal 2
+npx hardhat run scripts/deploy.js --network localhost
+npx hardhat run scripts/interactive-cli.js --network localhost
+```
+Connects to deployed contracts on your running node. Transactions appear in the node terminal. Shares blockchain with other demos.
 
 ### CLI Menu Options
 
