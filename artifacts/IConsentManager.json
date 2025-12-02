@@ -1,0 +1,157 @@
+{
+	"deploy": {
+		"VM:-": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"main:1": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"sepolia:11155111": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"Custom": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		}
+	},
+	"data": {
+		"bytecode": {
+			"functionDebugData": {},
+			"generatedSources": [],
+			"linkReferences": {},
+			"object": "",
+			"opcodes": "",
+			"sourceMap": ""
+		},
+		"deployedBytecode": {
+			"functionDebugData": {},
+			"generatedSources": [],
+			"immutableReferences": {},
+			"linkReferences": {},
+			"object": "",
+			"opcodes": "",
+			"sourceMap": ""
+		},
+		"gasEstimates": null,
+		"methodIdentifiers": {
+			"CheckConsent(address,address,bytes32)": "1769c6ad",
+			"GetConsentExpiry(address,address,bytes32)": "abc8d230",
+			"RevokeConsent(address,address,bytes32)": "2615ef4b",
+			"SetConsent(address,address,bytes32,uint256)": "1fc3c3d4"
+		}
+	},
+	"abi": [
+		{
+			"inputs": [
+				{
+					"internalType": "address",
+					"name": "owner",
+					"type": "address"
+				},
+				{
+					"internalType": "address",
+					"name": "requester",
+					"type": "address"
+				},
+				{
+					"internalType": "bytes32",
+					"name": "credentialTypeHash",
+					"type": "bytes32"
+				}
+			],
+			"name": "CheckConsent",
+			"outputs": [
+				{
+					"internalType": "bool",
+					"name": "",
+					"type": "bool"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "address",
+					"name": "owner",
+					"type": "address"
+				},
+				{
+					"internalType": "address",
+					"name": "requester",
+					"type": "address"
+				},
+				{
+					"internalType": "bytes32",
+					"name": "credentialTypeHash",
+					"type": "bytes32"
+				}
+			],
+			"name": "GetConsentExpiry",
+			"outputs": [
+				{
+					"internalType": "uint256",
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "address",
+					"name": "owner",
+					"type": "address"
+				},
+				{
+					"internalType": "address",
+					"name": "requester",
+					"type": "address"
+				},
+				{
+					"internalType": "bytes32",
+					"name": "credentialTypeHash",
+					"type": "bytes32"
+				}
+			],
+			"name": "RevokeConsent",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "address",
+					"name": "owner",
+					"type": "address"
+				},
+				{
+					"internalType": "address",
+					"name": "requester",
+					"type": "address"
+				},
+				{
+					"internalType": "bytes32",
+					"name": "credentialTypeHash",
+					"type": "bytes32"
+				},
+				{
+					"internalType": "uint256",
+					"name": "expiryTimestamp",
+					"type": "uint256"
+				}
+			],
+			"name": "SetConsent",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		}
+	]
+}

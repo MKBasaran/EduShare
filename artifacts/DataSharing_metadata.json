@@ -1,0 +1,438 @@
+{
+	"compiler": {
+		"version": "0.8.30+commit.73712a01"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_digitalIdentityContract",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_consentManagerContract",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_rewardTokenContract",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [],
+				"name": "ConsentExpired",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "ConsentInvalid",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "ConsentNotFound",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "ReentrancyGuardReentrantCall",
+				"type": "error"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "reason",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "AccessDenied",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					},
+					{
+						"indexed": false,
+						"internalType": "bytes32",
+						"name": "credentialHash",
+						"type": "bytes32"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "AccessGranted",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "recipient",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "TokensRewarded",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					}
+				],
+				"name": "AccessData",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					}
+				],
+				"name": "CanAccess",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					}
+				],
+				"name": "GetConsentExpiry",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"name": "GetTokenBalance",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "uint256",
+						"name": "expiryTimestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "GrantConsentAndReward",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					}
+				],
+				"name": "IsUserRegistered",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "REWARD_PER_CONSENT",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					}
+				],
+				"name": "RevokeConsentWrapper",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "consentManagerContract",
+				"outputs": [
+					{
+						"internalType": "contract IConsentManager",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "digitalIdentityContract",
+				"outputs": [
+					{
+						"internalType": "contract IDigitalIdentity",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "rewardTokenContract",
+				"outputs": [
+					{
+						"internalType": "contract IRewardToken",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"errors": {
+				"ReentrancyGuardReentrantCall()": [
+					{
+						"details": "Unauthorized reentrant call."
+					}
+				]
+			},
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"bc_project_starter/contracts/DataSharing.sol": "DataSharing"
+		},
+		"evmVersion": "prague",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"@openzeppelin/contracts/utils/ReentrancyGuard.sol": {
+			"keccak256": "0x11a5a79827df29e915a12740caf62fe21ebe27c08c9ae3e09abe9ee3ba3866d3",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://3cf0c69ab827e3251db9ee6a50647d62c90ba580a4d7bbff21f2bea39e7b2f4a",
+				"dweb:/ipfs/QmZiKwtKU1SBX4RGfQtY7PZfiapbbu6SZ9vizGQD9UHjRA"
+			]
+		},
+		"bc_project_starter/contracts/DataSharing.sol": {
+			"keccak256": "0xa9e3149898a7aea5a98d5be9e1efadc5ad78020ff4ff15b572ffde77f8a8d476",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://ea05b5a192dc5d4e34a7803df04135ee4a8866568417e9ea05f06d772b23032c",
+				"dweb:/ipfs/QmZUFmvukMhRgNS8RcrLFezNPtHLD5pKPvSJs9oHQzo8Gc"
+			]
+		},
+		"bc_project_starter/contracts/interfaces/IConsentManager.sol": {
+			"keccak256": "0xce3de59e553c45eee2edd1308d737eb429960db0a40dea8d0d05e11ba9551874",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://da0baf4b52aba7690210e4d10b0bf7a91e9ae78fa558dfb548fa546c21503669",
+				"dweb:/ipfs/QmbMZFuGzijcNVPcTpGiTazeoKDNkNWxmmvQsjtpbterca"
+			]
+		},
+		"bc_project_starter/contracts/interfaces/IDigitalIdentity.sol": {
+			"keccak256": "0x1ed87739f3b537da80dfdb2c2437989d27dd1fc1b9a4530e437f5a32c3d69620",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://b975a3f201a45d9492e2cd7b345ff3c9f025df97493f50c052a0d08c284bb529",
+				"dweb:/ipfs/QmTXik9v5H34rTTwrBmaChEWryWMARU4RQJarRshwfFTTm"
+			]
+		},
+		"bc_project_starter/contracts/interfaces/IRewardToken.sol": {
+			"keccak256": "0x75189b56edc7100351066019f741e77693a9e6ae63c3c6f2e04d35aa15009e94",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://572f4a827a89f05ef8bd96cf849980cb01ed1b3c8763d292307e482c04a2f773",
+				"dweb:/ipfs/QmdGzmXCwzfepy9NV4ejCiGc2mbAjNzVDW2n2ZQeTa1w3p"
+			]
+		}
+	},
+	"version": 1
+}

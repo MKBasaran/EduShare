@@ -1,0 +1,367 @@
+{
+	"compiler": {
+		"version": "0.8.30+commit.73712a01"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_digitalIdentityContract",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [],
+				"name": "CannotGrantToSelf",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "ConsentNotFound",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "CredentialNotFound",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "InvalidConsentDuration",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "InvalidExpiryTimestamp",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "RequesterNotRegistered",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "UserNotRegistered",
+				"type": "error"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "expiry",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "ConsentGranted",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "ConsentRevoked",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					}
+				],
+				"name": "CheckConsent",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					}
+				],
+				"name": "GetConsentExpiry",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					}
+				],
+				"name": "GetConsentInfo",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "bool",
+								"name": "exists",
+								"type": "bool"
+							},
+							{
+								"internalType": "uint256",
+								"name": "expiry",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "grantedAt",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "revoked",
+								"type": "bool"
+							}
+						],
+						"internalType": "struct ConsentManager.Consent",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "MAX_CONSENT_DURATION",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "MIN_CONSENT_DURATION",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					}
+				],
+				"name": "RevokeConsent",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "uint256",
+						"name": "expiryTimestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "SetConsent",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "digitalIdentityContract",
+				"outputs": [
+					{
+						"internalType": "contract IDigitalIdentity",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"bc_project_starter/contracts/ConsentManager.sol": "ConsentManager"
+		},
+		"evmVersion": "prague",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"bc_project_starter/contracts/ConsentManager.sol": {
+			"keccak256": "0xb17200d2e934e625bf9ba9731ec12b28990d04b5ae652696a39ed4646910a901",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://c8d2fb387912d79ebdef3b1ad5a5a5ae080e8bcf9f4f71bd8ba3105ddca3d7aa",
+				"dweb:/ipfs/QmbpYkAQAppp58ucyAtRfUnR6W36vBB5maa8NdcTeRqnHY"
+			]
+		},
+		"bc_project_starter/contracts/interfaces/IDigitalIdentity.sol": {
+			"keccak256": "0x1ed87739f3b537da80dfdb2c2437989d27dd1fc1b9a4530e437f5a32c3d69620",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://b975a3f201a45d9492e2cd7b345ff3c9f025df97493f50c052a0d08c284bb529",
+				"dweb:/ipfs/QmTXik9v5H34rTTwrBmaChEWryWMARU4RQJarRshwfFTTm"
+			]
+		}
+	},
+	"version": 1
+}

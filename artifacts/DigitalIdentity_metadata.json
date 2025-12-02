@@ -1,0 +1,295 @@
+{
+	"compiler": {
+		"version": "0.8.30+commit.73712a01"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"name": "AlreadyRegistered",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "CredentialNotFound",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "InvalidParameter",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "UserNotRegistered",
+				"type": "error"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					},
+					{
+						"indexed": false,
+						"internalType": "bytes32",
+						"name": "credentialHash",
+						"type": "bytes32"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "CredentialStored",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "bytes32",
+						"name": "idHash",
+						"type": "bytes32"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "IdentityRegistered",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					}
+				],
+				"name": "CredentialExists",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					}
+				],
+				"name": "GetCredentialHash",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					}
+				],
+				"name": "GetUserIdHash",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					}
+				],
+				"name": "GetUserInfo",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "bytes32",
+								"name": "idHash",
+								"type": "bytes32"
+							},
+							{
+								"internalType": "bytes32",
+								"name": "emailHash",
+								"type": "bytes32"
+							},
+							{
+								"internalType": "bytes32",
+								"name": "studentIdHash",
+								"type": "bytes32"
+							},
+							{
+								"internalType": "uint256",
+								"name": "registeredAt",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "exists",
+								"type": "bool"
+							}
+						],
+						"internalType": "struct DigitalIdentity.User",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					}
+				],
+				"name": "IsRegistered",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "idHash",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "emailHash",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "studentIdHash",
+						"type": "bytes32"
+					}
+				],
+				"name": "RegisterUser",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialHash",
+						"type": "bytes32"
+					}
+				],
+				"name": "StoreCredential",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"bc_project_starter/contracts/DigitalIdentity.sol": "DigitalIdentity"
+		},
+		"evmVersion": "prague",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"bc_project_starter/contracts/DigitalIdentity.sol": {
+			"keccak256": "0x3c0b99e950e49f892b718169df3f22f4d842a767cb55565a7785a72df322d702",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://76f79a530386daefcf1aa04709e17f326198e564069377d9c17a6a3a171dfc2b",
+				"dweb:/ipfs/QmY2r9My14r6nrUys1XYBE67MF9nCaoyGkTqGjwGtguY8Y"
+			]
+		}
+	},
+	"version": 1
+}

@@ -1,0 +1,155 @@
+{
+	"compiler": {
+		"version": "0.8.30+commit.73712a01"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					}
+				],
+				"name": "CheckConsent",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					}
+				],
+				"name": "GetConsentExpiry",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					}
+				],
+				"name": "RevokeConsent",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "requester",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "credentialTypeHash",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "uint256",
+						"name": "expiryTimestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "SetConsent",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"bc_project_starter/contracts/interfaces/IConsentManager.sol": "IConsentManager"
+		},
+		"evmVersion": "prague",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"bc_project_starter/contracts/interfaces/IConsentManager.sol": {
+			"keccak256": "0xce3de59e553c45eee2edd1308d737eb429960db0a40dea8d0d05e11ba9551874",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://da0baf4b52aba7690210e4d10b0bf7a91e9ae78fa558dfb548fa546c21503669",
+				"dweb:/ipfs/QmbMZFuGzijcNVPcTpGiTazeoKDNkNWxmmvQsjtpbterca"
+			]
+		}
+	},
+	"version": 1
+}
