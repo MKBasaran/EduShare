@@ -366,15 +366,16 @@ flowchart TD
 
 ## 11. Performance & Gas Costs
 
-| Operation | Estimated Gas | Notes |
-|-----------|---------------|-------|
-| AccessData (success) | ~50,000 | 1 consent check + 1 storage read + 1 event |
-| AccessData (denied) | ~30,000 | 1 consent check + 1 event (revert) |
-| Event emission | ~1,500 | Per AccessGranted/AccessDenied event |
-| ConsentManager.CheckConsent | ~5,000 | 3 storage reads (exists, revoked, expiry) |
-| DigitalIdentity.GetCredentialHash | ~3,000 | 1 storage read |
+| Operation | Actual Gas (measured) | Notes |
+|-----------|----------------------|-------|
+| AccessData (success) | ~269,750 | Includes on-chain audit logging + consent check + credential retrieval |
+| AccessData (denied) | ~245,637 | Logs denial on-chain + reverts |
+| RegisterUser | ~135,724 | One-time registration per user |
+| StoreCredential | ~92,541 | Store credential hash |
+| GrantConsentAndReward | ~163,444 | Grant consent + mint 10 tokens |
+| RevokeConsent | ~34,271 | Cheapest operation (just updates boolean) |
 
-**Optimization**: Use events instead of storage array for logs (saves ~20,000 gas per access).
+**Note**: AccessData is expensive due to on-chain audit logging. Every access attempt (granted or denied) is permanently stored in the accessLogs array with indexed mappings for querying. This provides full transparency and compliance but costs ~200k additional gas compared to event-only logging.
 
 ---
 

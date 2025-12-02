@@ -91,12 +91,13 @@ bc_project_starter/
 │   ├── demo-with-files.js       # File-based demo (realistic)
 │   └── interactive-cli.js       # Interactive CLI (best for testing)
 │
-├── test/                        # Tests (94 tests, all passing)
+├── test/                        # Tests (102 tests, all passing)
 │   ├── DigitalIdentity.test.js  # 19 tests
 │   ├── ConsentManager.test.js   # 26 tests
 │   ├── RewardToken.test.js      # 19 tests
 │   ├── Integration.test.js      # 15 tests
-│   └── DataSharing.audit.test.js # 15 tests
+│   ├── DataSharing.audit.test.js # 15 tests
+│   └── Scalability.test.js      # 8 tests
 │
 ├── docs/                        # Design documentation
 │   ├── 01-functional-requirements.md
@@ -276,7 +277,7 @@ All tests are complete and passing:
 npx hardhat test
 ```
 
-This runs 94 tests across 5 test files covering all contract functionality.
+This runs 102 tests across 6 test files covering all contract functionality, including scalability analysis.
 
 To see gas costs:
 

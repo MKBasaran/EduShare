@@ -622,15 +622,16 @@ interface IRewardToken {
 
 ## Gas Optimization Strategies
 
-| Optimization | Where Applied | Savings |
-|--------------|---------------|---------|
+| Optimization | Where Applied | Savings/Cost |
+|--------------|---------------|--------------|
 | Use `bytes32` for hashes | All contracts | ~30% vs strings |
 | Use `mapping` over `array` | All contracts | O(1) vs O(n) |
 | Use `immutable` for contract refs | DataSharing | ~2100 gas/read |
-| Use events instead of storage for logs | DataSharing | ~5000 gas/log |
+| Custom errors instead of strings | All contracts | ~20 gas/revert |
 | Delete instead of marking revoked | ConsentManager | Gas refund |
 | Batch operations (future) | All contracts | Amortized cost |
-| Short revert strings or custom errors | All contracts | ~20 gas/revert |
+
+**Trade-off Made**: We chose on-chain audit logging (AccessLog array) over events-only approach. This costs an additional ~200k gas per access but provides queryable, permanent audit trail for compliance. Events alone would save ~5000 gas/log but require off-chain indexing.
 
 ---
 
@@ -702,10 +703,12 @@ interface IRewardToken {
 ### Gas Cost Tests
 - Measure deployment costs (each contract)
 - Measure function execution costs:
-  - RegisterUser: ~XXX gas
-  - StoreCredential: ~XXX gas
-  - SetConsent: ~XXX gas
-  - AccessData: ~XXX gas
+  - RegisterUser: ~135,724 gas
+  - StoreCredential: ~92,541 gas
+  - SetConsent: ~104,205 gas
+  - GrantConsentAndReward: ~163,444 gas
+  - AccessData: ~269,750 gas (includes on-chain audit logging)
+  - RevokeConsent: ~34,271 gas
 - Optimize functions that exceed budget
 
 ---

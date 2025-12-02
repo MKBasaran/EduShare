@@ -93,18 +93,18 @@ This table defines what data is logged for each access attempt.
 **Why this design?**
 - **All data on-chain**: Audit trail must be immutable and verifiable
 - **Events vs Storage**: Use events (cheaper) OR storage array (queryable)
-  - **Recommended**: Emit events for logs (gas-efficient)
-  - **Optional**: Store in array for on-chain querying
+  - Events: Gas-efficient (~5k gas per log)
+  - Storage array: On-chain queryable but expensive (~200k additional gas)
 - **Access Result enum**: `enum AccessResult { GRANTED, DENIED }`
 
 **Log Storage Trade-off**:
 | Approach | Pros | Cons |
 |----------|------|------|
 | **Events only** | Gas-efficient, permanent | Requires off-chain event filtering |
-| **Storage array** | On-chain queryable | High gas cost |
+| **Storage array** | On-chain queryable | High gas cost (~269k gas per access) |
 | **Hybrid** | Best of both | More complex |
 
-**Recommendation**: Use events for gas efficiency
+**Implementation Choice**: We chose storage array (hybrid approach) for full transparency and compliance. AccessData costs ~269k gas but provides queryable audit trail. Events are also emitted for off-chain indexing.
 
 ---
 
