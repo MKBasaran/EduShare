@@ -133,10 +133,8 @@ educhain-platform/
 ├── test/
 │   ├── DigitalIdentity.test.js
 │   ├── ConsentManager.test.js
-│   ├── RewardToken.test.js
-│   ├── DataSharing.audit.test.js
-│   ├── Integration.test.js
-│   └── Scalability.test.js
+│   ├── DataSharing.test.js
+│   └── Integration.test.js
 ├── scripts/
 │   ├── deploy.js
 │   └── interact.js
@@ -352,41 +350,6 @@ describe("Full Workflow Integration", function () {
     // 6. Verify token balance
     // 7. Student revokes consent
     // 8. Employer access fails
-  });
-});
-```
-
----
-
-#### Scalability Tests
-
-**Scalability.test.js**:
-```javascript
-describe("Scalability Analysis", function () {
-  describe("User Registration Scalability", function () {
-    it("Should show constant gas cost for 10 users", async function () {});
-    it("Should show linear scaling with more users", async function () {});
-  });
-
-  describe("Credential Storage Scalability", function () {
-    it("Should handle multiple credentials per user", async function () {});
-  });
-
-  describe("Consent Grant Scalability", function () {
-    it("Should handle one student granting to multiple employers", async function () {});
-  });
-
-  describe("AccessData Scalability", function () {
-    it("Should measure gas growth as audit log grows", async function () {});
-  });
-
-  describe("Network Size Independence", function () {
-    it("Should prove gas cost independent of total users", async function () {});
-  });
-
-  describe("Theoretical Scalability Calculations", function () {
-    it("Should calculate maximum throughput per block", async function () {});
-    it("Should estimate costs for different scales", async function () {});
   });
 });
 ```
