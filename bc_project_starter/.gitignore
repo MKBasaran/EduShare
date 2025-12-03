@@ -32,6 +32,7 @@ npm-debug.log*
 *.tsbuildinfo
 
 # Misc
+.claude
 coverage/
 .coverage_artifacts/
 .coverage_cache/
