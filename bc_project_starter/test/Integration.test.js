@@ -109,14 +109,8 @@ describe("Integration Tests - Full System", function () {
       );
       expect(retrievedHash).to.equal(diplomaHash);
 
-      // Verify access was logged
-      const totalLogs = await dataSharing.totalAccessLogs();
-      expect(totalLogs).to.equal(1);
-
-      const accessLog = await dataSharing.getAccessLog(0);
-      expect(accessLog.owner).to.equal(student.address);
-      expect(accessLog.requester).to.equal(employer.address);
-      expect(accessLog.granted).to.be.true;
+      // Note: Access logging now uses events only (no on-chain storage)
+      // Events are emitted in transaction logs for audit purposes
     });
 
     it("Should handle consent revocation correctly", async function () {
@@ -185,9 +179,7 @@ describe("Integration Tests - Full System", function () {
         dataSharing.connect(employer).AccessData(student.address, diplomaTypeHash)
       ).to.be.revertedWithCustomError(dataSharing, "ConsentInvalid");
 
-      // Note: When transaction reverts, no log is stored (state is rolled back)
-      const totalLogs = await dataSharing.totalAccessLogs();
-      expect(totalLogs).to.equal(0);
+      // Note: When transaction reverts, events are not emitted
     });
 
     it("Should reject access after consent expires", async function () {
@@ -438,35 +430,8 @@ describe("Integration Tests - Full System", function () {
       expect(queriedExpiry).to.equal(expiryTimestamp);
     });
 
-    it("Should query access logs by owner", async function () {
-      const expiryTimestamp = (await time.latest()) + 86400 * 30;
-      await dataSharing.connect(student).GrantConsentAndReward(
-        employer.address,
-        diplomaTypeHash,
-        expiryTimestamp
-      );
-      await dataSharing.connect(employer).AccessData(student.address, diplomaTypeHash);
-
-      const logs = await dataSharing.getAccessLogsForOwner(student.address);
-      expect(logs.length).to.equal(1);
-      expect(logs[0].owner).to.equal(student.address);
-      expect(logs[0].granted).to.be.true;
-    });
-
-    it("Should query access logs by requester", async function () {
-      const expiryTimestamp = (await time.latest()) + 86400 * 30;
-      await dataSharing.connect(student).GrantConsentAndReward(
-        employer.address,
-        diplomaTypeHash,
-        expiryTimestamp
-      );
-      await dataSharing.connect(employer).AccessData(student.address, diplomaTypeHash);
-
-      const logs = await dataSharing.getAccessLogsForRequester(employer.address);
-      expect(logs.length).to.equal(1);
-      expect(logs[0].requester).to.equal(employer.address);
-      expect(logs[0].granted).to.be.true;
-    });
+    // Note: On-chain audit log storage removed - system now uses events for auditing
+    // Access logs are available in transaction event logs, not queryable via contract functions
   });
 
   describe("Token Economy Integration", function () {

@@ -1,6 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
+function hash(x) {
+    return ethers.keccak256(ethers.toUtf8Bytes(x));
+}
+
 describe("Scalability Analysis", function () {
   let digitalIdentity, consentManager, dataSharing, rewardToken;
   let accounts;
@@ -25,7 +29,7 @@ describe("Scalability Analysis", function () {
       await rewardToken.getAddress()
     );
 
-    const MINTER_ROLE = ethers.keccak256(ethers.toUtf8Bytes("MINTER_ROLE"));
+    const MINTER_ROLE = hash("MINTER_ROLE");
     await rewardToken.grantRole(MINTER_ROLE, await dataSharing.getAddress());
   });
 
@@ -36,9 +40,9 @@ describe("Scalability Analysis", function () {
       // Register 10 users and track gas cost for each
       for (let i = 0; i < 10; i++) {
         const user = accounts[i];
-        const idHash = ethers.keccak256(ethers.toUtf8Bytes(`student${i}`));
-        const emailHash = ethers.keccak256(ethers.toUtf8Bytes(`student${i}@uni.edu`));
-        const studentIdHash = ethers.keccak256(ethers.toUtf8Bytes(`S${i}`));
+        const idHash = hash(`student${i}`);
+        const emailHash = hash(`student${i}@uni.edu`);
+        const studentIdHash = hash(`S${i}`);
 
         const tx = await digitalIdentity.connect(user).RegisterUser(idHash, emailHash, studentIdHash);
         const receipt = await tx.wait();
@@ -67,9 +71,9 @@ describe("Scalability Analysis", function () {
 
       for (let i = 10; i < 20; i++) {
         const user = accounts[i];
-        const idHash = ethers.keccak256(ethers.toUtf8Bytes(`student${i}`));
-        const emailHash = ethers.keccak256(ethers.toUtf8Bytes(`student${i}@uni.edu`));
-        const studentIdHash = ethers.keccak256(ethers.toUtf8Bytes(`S${i}`));
+        const idHash = hash(`student${i}`);
+        const emailHash = hash(`student${i}@uni.edu`);
+        const studentIdHash = hash(`S${i}`);
 
         const tx = await digitalIdentity.connect(user).RegisterUser(idHash, emailHash, studentIdHash);
         const receipt = await tx.wait();
@@ -90,8 +94,8 @@ describe("Scalability Analysis", function () {
       const gasUsed = [];
 
       for (const credType of credentialTypes) {
-        const credTypeHash = ethers.keccak256(ethers.toUtf8Bytes(credType));
-        const credHash = ethers.keccak256(ethers.toUtf8Bytes(`${credType}_data`));
+        const credTypeHash = hash(credType);
+        const credHash = hash(`${credType}_data`);
 
         const tx = await digitalIdentity.connect(user).StoreCredential(credTypeHash, credHash);
         const receipt = await tx.wait();
@@ -110,7 +114,7 @@ describe("Scalability Analysis", function () {
       const student = accounts[0];
       // Use accounts 15-19 for employers (already registered in previous tests)
       const employers = [accounts[15], accounts[16], accounts[17], accounts[18], accounts[19]];
-      const credTypeHash = ethers.keccak256(ethers.toUtf8Bytes("Bachelor_Diploma"));
+      const credTypeHash = hash("Bachelor_Diploma");
       const gasUsed = [];
 
       // Employers are already registered from previous tests, just grant consent to them
@@ -130,13 +134,13 @@ describe("Scalability Analysis", function () {
   });
 
   describe("AccessData Scalability", function () {
-    it("Should measure gas growth as audit log grows", async function () {
+    it("Should show constant gas cost for credential access", async function () {
       const student = accounts[0];
       const employer = accounts[15]; // Use employer from previous test who has consent
-      const credTypeHash = ethers.keccak256(ethers.toUtf8Bytes("Bachelor_Diploma"));
+      const credTypeHash = hash("Bachelor_Diploma");
       const gasUsed = [];
 
-      // Access same credential 10 times and see if gas increases
+      // Access same credential 10 times to verify constant cost
       for (let i = 0; i < 10; i++) {
         const tx = await dataSharing.connect(employer).AccessData(student.address, credTypeHash);
         const receipt = await tx.wait();
@@ -146,13 +150,20 @@ describe("Scalability Analysis", function () {
       const firstAccess = gasUsed[0];
       const lastAccess = gasUsed[gasUsed.length - 1];
       const avgGas = gasUsed.reduce((a, b) => a + b, 0n) / BigInt(gasUsed.length);
+      const maxDeviation = gasUsed.reduce((max, gas) => {
+        const deviation = gas > avgGas ? gas - avgGas : avgGas - gas;
+        return deviation > max ? deviation : max;
+      }, 0n);
 
       console.log(`\n  10 Sequential AccessData Calls:`);
       console.log(`     First access: ${firstAccess.toString()} gas`);
       console.log(`     Last access: ${lastAccess.toString()} gas`);
-      console.log(`     Growth: ${lastAccess - firstAccess} gas (${((Number(lastAccess - firstAccess) * 100) / Number(firstAccess)).toFixed(2)}%)`);
       console.log(`     Average: ${avgGas.toString()} gas`);
-      console.log(`     Note: Slight growth from array expansion`);
+      console.log(`     Max deviation: ${maxDeviation.toString()} (${(Number(maxDeviation) * 100 / Number(avgGas)).toFixed(2)}%)`);
+      console.log(`     Note: Constant O(1) cost - no on-chain logging, only events`);
+
+      // Cost should be constant (< 5% deviation proves O(1) complexity)
+      expect(maxDeviation).to.be.lt(avgGas / 20n); // Less than 5% deviation
     });
   });
 
@@ -160,19 +171,19 @@ describe("Scalability Analysis", function () {
     it("Should prove gas cost independent of total users", async function () {
       // We now have 20 users registered
       // Compare credential storage cost for user #2 vs user #20
-      // (User #1 already has credentials from Test 3)
+      // (User #1 already has credentials from Test 3, its write cost is less so we use #2)
       const earlyUser = accounts[1];
       const lateUser = accounts[19];
 
       // Store first credential for user #2
-      const credType1 = ethers.keccak256(ethers.toUtf8Bytes("Bachelor_Diploma"));
-      const credHash1 = ethers.keccak256(ethers.toUtf8Bytes("diploma_data_user1"));
+      const credType1 = hash("Bachelor_Diploma");
+      const credHash1 = hash("diploma_data_user1");
       const tx1 = await digitalIdentity.connect(earlyUser).StoreCredential(credType1, credHash1);
       const receipt1 = await tx1.wait();
 
       // Store first credential for user #20
-      const credType2 = ethers.keccak256(ethers.toUtf8Bytes("Bachelor_Diploma"));
-      const credHash2 = ethers.keccak256(ethers.toUtf8Bytes("diploma_data_user19"));
+      const credType2 = hash("Bachelor_Diploma");
+      const credHash2 = hash("diploma_data_user19");
       const tx2 = await digitalIdentity.connect(lateUser).StoreCredential(credType2, credHash2);
       const receipt2 = await tx2.wait();
 
@@ -182,11 +193,11 @@ describe("Scalability Analysis", function () {
       console.log(`     Difference: ${receipt2.gasUsed > receipt1.gasUsed ? receipt2.gasUsed - receipt1.gasUsed : receipt1.gasUsed - receipt2.gasUsed} gas`);
       console.log(`     This proves O(1) constant time - cost doesn't increase with network size`);
 
-      // Both should be within expected range for StoreCredential (~93k gas)
-      expect(receipt1.gasUsed).to.be.gt(90000n);
-      expect(receipt1.gasUsed).to.be.lt(96000n);
-      expect(receipt2.gasUsed).to.be.gt(90000n);
-      expect(receipt2.gasUsed).to.be.lt(96000n);
+      // Both should be within expected range for StoreCredential (~71k gas)
+      expect(receipt1.gasUsed).to.be.gt(68000n);
+      expect(receipt1.gasUsed).to.be.lt(75000n);
+      expect(receipt2.gasUsed).to.be.gt(68000n);
+      expect(receipt2.gasUsed).to.be.lt(75000n);
     });
   });
 

@@ -91,12 +91,12 @@ bc_project_starter/
 │   ├── demo-with-files.js       # File-based demo (realistic)
 │   └── interactive-cli.js       # Interactive CLI (best for testing)
 │
-├── test/                        # Tests (102 tests, all passing)
+├── test/                        # Tests (90 tests, all passing)
 │   ├── DigitalIdentity.test.js  # 19 tests
 │   ├── ConsentManager.test.js   # 26 tests
 │   ├── RewardToken.test.js      # 19 tests
-│   ├── Integration.test.js      # 15 tests
-│   ├── DataSharing.audit.test.js # 15 tests
+│   ├── Integration.test.js      # 13 tests
+│   ├── DataSharing.audit.test.js # 5 tests (event-based auditing)
 │   └── Scalability.test.js      # 8 tests
 │
 ├── docs/                        # Design documentation
@@ -243,7 +243,7 @@ npx hardhat run scripts/interactive-cli.js
 - **Time-Limited Access**: Consent expires after specified duration
 - **Revocable**: Students can revoke consent anytime
 - **Incentivized**: 10 EDUSHARE tokens per consent grant
-- **Audit Trail**: All access logged immutably
+- **Audit Trail**: All access logged immutably via events
 - **Tamper-Proof**: Cryptographic verification prevents forgery
 
 ---
@@ -277,7 +277,7 @@ All tests are complete and passing:
 npx hardhat test
 ```
 
-This runs 102 tests across 6 test files covering all contract functionality, including scalability analysis.
+This runs 90 tests across 6 test files covering all contract functionality, including scalability analysis and event-based audit logging.
 
 To see gas costs:
 
