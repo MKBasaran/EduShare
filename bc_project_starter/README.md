@@ -2,72 +2,30 @@
 
 A decentralized platform for students to share academic credentials with employers using blockchain's immutability for tamper-proof verification.
 
-## Quick Links
+## Overview
 
-- **[FLOW.md](FLOW.md)** - READ THIS FIRST! Explains how everything works, demo vs production, blockchain concepts
-- **[Interactive CLI Demo](#running-the-interactive-cli)** - Best way to test the system
-- **[Project Structure](#project-structure)** - Where to find things
-- **[Docs](/docs)** - Detailed specifications
+Students store cryptographic hashes of their diplomas on the blockchain. Employers can only verify credentials with explicit, time-limited consent from students. Every access attempt is logged immutably. Students earn tokens for sharing their data.
 
----
+## Core Concept
 
-## What This Project Does
-
-### The Core Idea
-
-Students store cryptographic hashes of their diplomas on the blockchain. When an employer wants to verify a diploma:
-1. Employer requests access (needs student's consent)
-2. Student grants time-limited consent (30 days, 90 days, etc.)
+1. Student uploads diploma and stores its hash on-chain
+2. Student grants time-limited consent to specific employers
 3. Employer retrieves the hash from blockchain
-4. Employer gets the actual diploma file from student (email, IPFS, etc.)
-5. Employer verifies: `hash(diploma_file) == blockchain_hash`
-6. If they match, the diploma is authentic and hasn't been tampered with
+4. Employer verifies the actual diploma file matches the hash
+5. If hashes match, the diploma is authentic
+6. Student can revoke access anytime
 
-The blockchain provides **immutable verification** without storing sensitive data.
-
-### Why Blockchain?
-
-- **Immutability**: Once a hash is stored, no one can change it
-- **Transparency**: All access is logged permanently
-- **Ownership**: Students control their data through private keys
-- **Trust**: No central authority can manipulate records
-
-We're using blockchain's immutability property as a tamper-proof timestamp and verification mechanism.
+The blockchain provides immutable verification without storing sensitive data publicly.
 
 ---
 
-## IMPORTANT: This is a Testing Demo
+## Team
 
-### What You're Looking At
-
-This project contains:
-- Smart contracts (production-ready)
-- Deployment scripts
-- Demo scripts that show how it works
-- Interactive CLI for testing
-- NO frontend (no React app, no UI)
-- NO real user accounts (just test accounts)
-
-### Demo vs Real Applications
-
-**Our Demo (What we have):**
-- Local Hardhat network
-- You can switch between accounts instantly
-- All transactions are instant and free
-- Everything runs on your computer
-
-**Real Application (What would be built):**
-- Deployed to real blockchain (Ethereum, Polygon, etc.)
-- Each user has their own wallet (MetaMask)
-- Each user pays gas fees for transactions
-- Frontend website that connects to contracts
-- Users sign transactions with their private keys
-- You can't act on behalf of other users
-
-**Key Difference:**
-> In our CLI, you can switch from being "Alice" to being "TechCorp" instantly. In a real app, that's impossible. Alice has her wallet, TechCorp has theirs, and they can only sign transactions for themselves.
-
-For a detailed explanation, read **[FLOW.md](FLOW.md)** section "Demo vs Real Application".
+- Kaan Basaran
+- Cristian Babalau
+- Adrian Rusu
+- Aleksandar Stoychev
+- Selim Elkaffas
 
 ---
 
@@ -75,9 +33,6 @@ For a detailed explanation, read **[FLOW.md](FLOW.md)** section "Demo vs Real Ap
 
 ```
 bc_project_starter/
-├── README.md                    # This file - overview
-├── FLOW.md                      # How everything works - READ THIS!
-│
 ├── contracts/                   # Smart contracts (Solidity)
 │   ├── DigitalIdentity.sol      # User registration + credential storage
 │   ├── ConsentManager.sol       # Time-limited consent management
@@ -87,9 +42,9 @@ bc_project_starter/
 │
 ├── scripts/                     # Testing and deployment
 │   ├── deploy.js                # Deploy all contracts
-│   ├── demo.js                  # Basic demo (simple)
-│   ├── demo-with-files.js       # File-based demo (realistic)
-│   └── interactive-cli.js       # Interactive CLI (best for testing)
+│   ├── demo.js                  # Basic demo
+│   ├── demo-with-files.js       # File-based demo
+│   └── interactive-cli.js       # Interactive CLI (recommended)
 │
 ├── test/                        # Tests (90 tests, all passing)
 │   ├── DigitalIdentity.test.js  # 19 tests
@@ -99,13 +54,7 @@ bc_project_starter/
 │   ├── DataSharing.audit.test.js # 5 tests (event-based auditing)
 │   └── Scalability.test.js      # 8 tests
 │
-├── docs/                        # Design documentation
-│   ├── 01-functional-requirements.md
-│   ├── 02-system-design.md
-│   ├── 03-smart-contract-design.md
-│   └── 04-implementation-guide.md
-│
-└── docs/diagrams/               # System diagrams
+└── diagrams/                    # System diagrams
     ├── architecture-diagram.md
     ├── consent-workflow.md
     └── access-workflow.md
@@ -113,9 +62,9 @@ bc_project_starter/
 
 ---
 
-## Getting Started
+## Quick Start
 
-### Install Dependencies
+### Installation
 
 ```bash
 npm install
@@ -127,18 +76,18 @@ npm install
 npx hardhat compile
 ```
 
-### Run Demos
+### Run Interactive Demo
 
-**Option 1: Interactive CLI (Recommended)**
+**Option 1: Standalone Mode (Recommended)**
 
-*Standalone mode (deploys its own contracts):*
 ```bash
 npx hardhat run scripts/interactive-cli.js
 ```
-Deploys fresh contracts in-memory, nothing persists after exit. Quick testing.
 
-*Connected mode (uses running node):*
-First start a local node and deploy contracts:
+Deploys fresh contracts in-memory. Quick testing without needing a separate node.
+
+**Option 2: Connected Mode (With Running Node)**
+
 ```bash
 # Terminal 1
 npx hardhat node
@@ -147,70 +96,61 @@ npx hardhat node
 npx hardhat run scripts/deploy.js --network localhost
 npx hardhat run scripts/interactive-cli.js --network localhost
 ```
-Connects to deployed contracts, shares blockchain with other demos. You'll see transactions appear in the node terminal.
 
-**Option 2: File-Based Demo (Shows Blockchain Activity)**
-First start a local node in one terminal:
-```bash
-npx hardhat node
-```
-Then in another terminal:
-```bash
-npx hardhat run scripts/demo-with-files.js --network localhost
-```
-This creates actual diploma files, stores their hashes, and demonstrates the verification process. You'll see blockchain activity (blocks, transactions) in the node terminal.
+Connects to deployed contracts on your running node. Transactions appear in the node terminal.
 
-**Option 3: Basic Demo**
+### Run Tests
+
 ```bash
-npx hardhat run scripts/demo.js
+npx hardhat test
 ```
-Simple script showing the basic workflow without files.
+
+Runs 90 tests covering all contract functionality, including scalability analysis and event-based audit logging. Results saved to `gas-report.txt`.
 
 ---
 
-## Running the Interactive CLI
+## Interactive CLI Menu
 
-The CLI is the best way to test and understand the system:
+The CLI is the best way to test the system:
 
 ```bash
 npx hardhat run scripts/interactive-cli.js
 ```
 
-### What You Can Do
+Available actions:
+1. Select Account - Switch between test accounts
+2. Register User - Register current account
+3. Store Credential - Store a diploma hash
+4. Grant Consent - Give someone access
+5. Access Credential - Retrieve someone's hash (if you have consent)
+6. Revoke Consent - Take away access
+7. View Token Balance - Check EDUSHARE tokens
+8. List Accounts - See all test accounts
 
-1. **Select Account** - Switch between 5 test accounts
-2. **Register User** - Register as student or employer
-3. **Store Credential** - Create diploma file and store hash
-4. **Grant Consent** - Give someone access for X days
-5. **Access Credential** - Retrieve hash (if you have consent)
-6. **Revoke Consent** - Remove someone's access
-7. **View Token Balance** - Check EDUSHARE tokens
-8. **List Accounts** - See all accounts and their status
-
-### Example Walkthrough
+### Example Workflow
 
 ```
-1. Select account 1 (Alice - student)
+1. Select Account 1 (Alice - student)
 2. Register Alice
 3. Store credential (creates diploma file)
-4. Grant consent to account 2 for 30 days
-5. See Alice earned 10 EDUSHARE tokens
+4. Grant consent to Account 2 for 30 days
+5. Alice receives 10 EDUSHARE tokens
 
-6. Select account 2 (TechCorp - employer)
+6. Select Account 2 (TechCorp - employer)
 7. Access Alice's credential
-8. See the hash retrieved successfully
+8. Hash retrieved successfully
 
-9. Select account 1 (Alice)
-10. Revoke consent to account 2
+9. Select Account 1 (Alice)
+10. Revoke consent to Account 2
 11. Alice keeps her tokens
 
-12. Select account 2 (TechCorp)
-13. Try to access again - gets denied
+12. Select Account 2 (TechCorp)
+13. Try to access again - access denied
 ```
 
 ---
 
-## The Smart Contracts
+## Smart Contracts
 
 ### DigitalIdentity.sol
 - User registration (students, employers)
@@ -226,14 +166,12 @@ npx hardhat run scripts/interactive-cli.js
 - Main orchestrator contract
 - Coordinates other contracts
 - Rewards students with tokens
-- Logs all access attempts
+- Logs all access attempts via events
 
 ### RewardToken.sol
 - ERC20 token (EDUSHARE)
 - Students earn 10 tokens per consent grant
-- Role-based minting
-
-**Full flow diagram in [FLOW.md](FLOW.md)**
+- Role-based minting (only DataSharing can mint)
 
 ---
 
@@ -245,138 +183,249 @@ npx hardhat run scripts/interactive-cli.js
 - **Incentivized**: 10 EDUSHARE tokens per consent grant
 - **Audit Trail**: All access logged immutably via events
 - **Tamper-Proof**: Cryptographic verification prevents forgery
+- **Gas-Optimized**: Event-based logging achieves 83% gas reduction
 
 ---
 
-## How It Would Work in Production
+## Testing
 
-For a detailed explanation of how this would work on a real blockchain with real users, read the **[FLOW.md](FLOW.md)** section "How It Would Work on a Real Blockchain".
-
-**Quick summary:**
-1. Deploy contracts to real network (Ethereum, Polygon, etc.)
-2. Build frontend (React website)
-3. Users connect with MetaMask or similar wallet
-4. Each user signs their own transactions
-5. Users pay gas fees for write operations
-6. Files stored on IPFS or sent via email
-7. Everything is permanent and public (except actual files)
-
-**Cost estimate per student:**
-- Registration: $3-10
-- Store credential: $2-5
-- Grant consent: $5-15 (but you get tokens back)
-- Total: ~$10-30 for lifetime credential management
-
----
-
-## Running Tests
-
-All tests are complete and passing:
+### Run All Tests
 
 ```bash
 npx hardhat test
 ```
 
-This runs 90 tests across 6 test files covering all contract functionality, including scalability analysis and event-based audit logging.
+### Test Coverage
 
-To see gas costs:
+- **DigitalIdentity.test.js** (19 tests): Registration, storage, retrieval
+- **ConsentManager.test.js** (26 tests): Consent granting, revocation, expiry, validation
+- **RewardToken.test.js** (19 tests): ERC20 functionality, role management, minting
+- **Integration.test.js** (13 tests): Full user journeys with multiple users and credentials
+- **DataSharing.audit.test.js** (5 tests): Event-based audit logging
+- **Scalability.test.js** (8 tests): O(1) constant gas cost per operation, linear scaling
 
-```bash
-npx hardhat test
-# Results saved to gas-report.txt
-```
+**Total: 90 tests, all passing**
+
+### Gas Costs
+
+Gas costs are automatically measured during tests and saved to `gas-report.txt`.
+
+**Deployment Costs (one-time):**
+- DigitalIdentity: ~404k gas
+- ConsentManager: ~550k gas
+- RewardToken: ~781k gas
+- DataSharing: ~784k gas
+
+**Transaction Costs (per operation):**
+- RegisterUser: ~113k gas
+- StoreCredential: ~71k gas
+- SetConsent: ~102k gas
+- GrantConsentAndReward: ~150k gas
+- AccessData: ~43k gas (event-based logging only)
+- RevokeConsent: ~34k gas
 
 ---
 
-## Understanding Blockchain Concepts
+## Architecture
 
-### Transactions
-Every write operation (register, store, grant, revoke) is a transaction that:
-- Costs gas (fees paid to miners)
-- Takes time to process (blocks need to be mined)
-- Is permanent once confirmed
-- Cannot be undone
+### Contract Interactions
 
-### Accounts
-- Each account has a private key (secret) and address (public)
-- Private key signs transactions
-- You can't make transactions for someone else
-- Our CLI simulates multiple accounts on one computer
+```
+DataSharing (Main Orchestrator)
+    ├── DigitalIdentity (User registration, credential storage)
+    ├── ConsentManager (Consent validation)
+    └── RewardToken (Token minting)
+```
 
-### Immutability
-- Once data is on the blockchain, it can't be changed
-- You can only add new data
-- This is why it's perfect for verification
+See `diagrams/architecture-diagram.md` for detailed visual overview.
 
-### On-Chain vs Off-Chain
-- **On-Chain**: Hashes, consent records, logs (expensive, permanent)
-- **Off-Chain**: Actual diploma files (cheap, private)
+### Data Storage
 
-For more details, see **[FLOW.md](FLOW.md)**.
+**On-Chain (Blockchain):**
+- User registration hashes (idHash, emailHash, studentIdHash)
+- Credential hashes
+- Consent records (who, what, when, until when)
+- Access event logs (via transaction logs)
+- Token balances
+
+**Off-Chain (Not on Blockchain):**
+- Actual diploma files
+- Personal information in plaintext
+- Private keys
+
+---
+
+## Security
+
+### Implemented Protections
+
+- **Checks-Effects-Interactions Pattern**: All validations before state changes
+- **ReentrancyGuard**: Protects against reentrancy attacks
+- **Role-Based Access Control**: Only authorized addresses can mint tokens
+- **Custom Errors**: Gas-efficient error handling
+- **Input Validation**: All user inputs validated
+- **No Plaintext PII**: Only hashes stored on-chain
+
+### Audit Trail
+
+All access attempts are logged via events:
+- **AccessGranted**: Owner, requester, credential type, hash, timestamp
+- **AccessDenied**: Owner, requester, credential type, reason, timestamp
+
+Events are permanent, immutable, and queryable off-chain via RPC.
+
+---
+
+## Gas Optimization
+
+| Optimization | Applied To | Savings |
+|--------------|------------|---------|
+| Use `bytes32` for hashes | All contracts | ~30% vs strings |
+| Use `mapping` over `array` | All contracts | O(1) vs O(n) |
+| Use `immutable` for contract refs | DataSharing | ~2100 gas/read |
+| Custom errors vs strings | All contracts | ~20 gas/revert |
+| Delete vs marking revoked | ConsentManager | Gas refund |
+| Events vs storage arrays | DataSharing | 83% reduction (~217k gas) |
+
+**Key Optimization**: Event-based logging reduces AccessData cost from ~260k to ~43k gas.
+
+---
+
+## Scalability
+
+### Constant Time Operations (O(1))
+
+All core operations maintain constant gas cost regardless of:
+- Total number of users in the system
+- Number of credentials per user
+- Number of access attempts
+
+Proven by Scalability.test.js with empirical measurements.
+
+---
+
+## Production Deployment
+
+### Requirements
+
+1. Deploy contracts to target network (Ethereum, Polygon, etc.)
+2. Frontend application for user interaction
+3. User wallet integration (MetaMask, WalletConnect, etc.)
+4. Off-chain file storage solution (IPFS, cloud storage, email)
+
+### Deployment Steps
+
+```bash
+# Example: Deploy to Sepolia testnet
+npx hardhat run scripts/deploy.js --network sepolia
+```
+
+After deployment, contracts receive permanent addresses. Update frontend configuration with these addresses.
+
+### Estimated Costs (Mainnet)
+
+**Per Student:**
+- Registration: $3-10 (one-time)
+- Store credential: $2-5 (one-time)
+- Grant consent: $5-15 (receives tokens)
+- **Total: ~$10-30 for lifetime credential management**
+
+**Per Employer:**
+- Registration: $3-10 (one-time)
+- Access credential: $2-5 (per verification)
+
+---
+
+## Technical Specifications
+
+- **Solidity Version**: 0.8.20
+- **Framework**: Hardhat
+- **Dependencies**: OpenZeppelin Contracts
+- **Token Standard**: ERC20
+- **Testing**: Chai, Ethers.js
+- **Networks**: Local Hardhat, deployable to any EVM-compatible chain
+
+---
+
+## Additional Resources
+
+### Diagrams
+
+Visual flowcharts available in `/diagrams`:
+- `architecture-diagram.md` - Contract relationships and data flow
+- `consent-workflow.md` - Consent grant/revoke process
+- `access-workflow.md` - Credential access verification flow
+
+### Demo Scripts
+
+- `scripts/demo.js` - Basic demonstration of core functionality
+- `scripts/demo-with-files.js` - Creates actual diploma files and demonstrates hash verification
+- `scripts/interactive-cli.js` - Interactive menu for testing all features
 
 ---
 
 ## Common Questions
 
 **Q: Why not store the diploma file on blockchain?**
-A: Too expensive. A 1MB file would cost thousands of dollars in gas fees. We only store the hash (32 bytes).
+A: Storage costs would be prohibitive. A 1MB file would cost thousands of dollars in gas fees. Storing only the hash (32 bytes) costs a few dollars.
 
 **Q: How do employers get the actual diploma?**
-A: Students send it off-chain (email, IPFS, Google Drive, etc.). Employers verify it matches the blockchain hash.
+A: Students send files off-chain (email, IPFS, cloud storage). Employers verify the file matches the blockchain hash.
 
 **Q: Can students fake their diploma?**
-A: No. If they modify the file, the hash won't match. The blockchain hash proves the original file hasn't been tampered with.
+A: If the file is modified, the hash will not match. The blockchain hash proves authenticity.
 
-**Q: What stops someone from accessing my credential without consent?**
-A: The smart contract checks consent before returning any data. No consent = no access. It's enforced at the code level.
+**Q: What prevents unauthorized access?**
+A: Smart contract code enforces consent checks. No consent = no access. Enforcement is cryptographic, not trust-based.
 
-**Q: Why do I need to "switch accounts" in the CLI?**
-A: That's just for testing. In a real app, each person has their own wallet and can only act as themselves.
-
-**Q: Is this actually decentralized?**
-A: The smart contracts are decentralized (on blockchain). File storage is up to you (local, IPFS, centralized server).
+**Q: Is this system decentralized?**
+A: Smart contracts are decentralized (on blockchain). File storage method is implementation-dependent (can be IPFS for full decentralization).
 
 ---
 
-## Technical Details
+## Development
 
-**Solidity**: ^0.8.20
-**Framework**: Hardhat
-**Token Standard**: ERC20 (OpenZeppelin)
-**Security**: ReentrancyGuard, Checks-Effects-Interactions, Role-Based Access
-**Network**: Local Hardhat (demo), deployable to any EVM chain
+### Run Local Node
 
----
+```bash
+npx hardhat node
+```
 
-## Documentation
+### Deploy Locally
 
-All design docs are in `/docs`:
-- `01-functional-requirements.md` - What the system needs to do
-- `02-system-design.md` - Data models and consent model
-- `03-smart-contract-design.md` - Contract specifications
-- `04-implementation-guide.md` - Hardhat setup guide
+```bash
+npx hardhat run scripts/deploy.js --network localhost
+```
 
-All diagrams are in `/diagrams`:
-- `architecture-diagram.md` - Contract relationships
-- `consent-workflow.md` - Grant/revoke flow
-- `access-workflow.md` - Access verification flow
+### Run Specific Test File
 
----
+```bash
+npx hardhat test test/DigitalIdentity.test.js
+```
 
-## For Colleagues
+### View Gas Report
 
-If you're trying to understand this project:
-
-1. **Read [FLOW.md](FLOW.md)** - Explains everything in detail
-2. **Run `interactive-cli.js`** - Play with the system
-3. **Read the contract code** - It's well commented
-4. **Check the demo scripts** - Shows real usage
-5. **Look at the docs** - Design specifications
-
-The key insight is that we're using blockchain as a **tamper-proof verification layer**, not as a database. The immutability property is what makes this work.
+```bash
+npx hardhat test
+cat gas-report.txt
+```
 
 ---
 
 ## License
 
 MIT
+
+---
+
+## Contributing
+
+This is an academic project demonstrating blockchain credential verification. The smart contracts are production-ready, but a complete production system would require:
+
+- Frontend application
+- User wallet integration
+- Off-chain file storage infrastructure
+- Production-grade key management
+- User experience optimization
+
+Feel free to use this as a foundation for building such a system.
