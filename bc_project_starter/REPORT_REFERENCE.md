@@ -86,15 +86,15 @@ Quick reference for writing our project report. This lists what files and code w
 ## Experimental Results Section
 
 **Test Coverage:**
-- test/ folder has 6 test files, 102 total tests, all passing
+- test/ folder has 6 test files, 90 total tests, all passing
 - DigitalIdentity.test.js: 19 tests covering registration, storage, retrieval
 - ConsentManager.test.js: 26 tests covering consent granting, revocation, expiry, validation
 - RewardToken.test.js: 19 tests covering ERC20 functionality, role management, minting
-- Integration.test.js: 15 tests showing full user journeys with multiple users and credentials
-- DataSharing.audit.test.js: 15 tests for the on-chain audit log querying
+- Integration.test.js: 13 tests showing full user journeys with multiple users and credentials
+- DataSharing.audit.test.js: 5 tests for event-based audit logging (AccessGranted/AccessDenied events)
 - Scalability.test.js: 8 tests proving O(1) constant gas cost per operation, linear scaling, and calculating theoretical throughput
 
-Run `npx hardhat test` to see the output - should show all 102 passing with execution times.
+Run `npx hardhat test` to see the output - should show all 90 passing with execution times.
 
 **Gas Measurements:**
 The gas-report.txt file (generated when running tests) contains:
@@ -107,51 +107,38 @@ Deployment costs (one-time):
 - Total: ~3.2M gas to deploy entire system
 
 Function costs (per transaction):
-- RegisterUser: ~135k gas (creates new user)
-- StoreCredential: ~92k gas (adds credential hash)
-- SetConsent: ~104k gas average (grants permission)
-- GrantConsentAndReward: ~163k gas (wrapper that calls SetConsent + mints tokens)
-- AccessData: ~269k gas (most expensive - see explanation below)
+- RegisterUser: ~113k gas (creates new user)
+- StoreCredential: ~71k gas (adds credential hash)
+- SetConsent: ~102k gas average (grants permission)
+- GrantConsentAndReward: ~150k gas (wrapper that calls SetConsent + mints tokens)
+- AccessData: ~43k gas (event-based logging only)
 - RevokeConsent: ~34k gas (cheapest - just updates one boolean)
 
-**Why AccessData Costs So Much (269k gas):**
+**Why AccessData is Gas-Efficient (43k gas):**
 
-AccessData is expensive because of the on-chain audit logging feature. Every single access attempt (successful or denied) gets permanently stored on the blockchain. Here's the breakdown:
+AccessData uses event-based audit logging instead of storage, making it highly efficient:
 
-1. **External Contract Calls** (~50k gas):
+1. **External Contract Calls** (~25k gas):
    - Calls ConsentManager.CheckConsent() - reads consent record from another contract
    - Calls DigitalIdentity.GetCredentialHash() - reads credential from another contract
-   - Cross-contract calls are more expensive than internal reads
+   - Cross-contract view calls are relatively cheap
 
-2. **Creating AccessLog Struct** (~150k gas):
-   - Stores 7 fields on-chain for EVERY access (see DataSharing.sol:28-36):
-     - `address owner` (20 bytes)
-     - `address requester` (20 bytes)
-     - `bytes32 credentialTypeHash` (32 bytes)
-     - `bytes32 credentialHash` (32 bytes)
-     - `uint256 timestamp` (32 bytes)
-     - `bool granted` (1 byte)
-     - `string reason` (variable length, ~20 bytes for "Consent invalid or expired")
-   - Total: ~157 bytes of NEW storage per access
-   - Storage writes are the most expensive operation in Ethereum (~20k gas per 32-byte slot)
+2. **Event Emission** (~8k gas):
+   - Emits AccessGranted or AccessDenied event with indexed parameters
+   - Events are stored in transaction logs (not contract storage)
+   - Much cheaper than storage writes (~375 gas per log entry + ~375 gas per topic)
 
-3. **Array Push Operations** (~45k gas):
-   - Pushes to `accessLogs` array (line 177)
-   - Pushes to `ownerLogIndices[owner]` array (line 188)
-   - Pushes to `requesterLogIndices[msg.sender]` array (line 189)
-   - Increments `totalAccessLogs` counter (line 190)
-   - Dynamic array growth requires storage allocation
-
-4. **Event Emission** (~5k gas):
-   - Emits AccessGranted or AccessDenied event (lines 160, 193)
-
-5. **ReentrancyGuard Overhead** (~10k gas):
+3. **ReentrancyGuard Overhead** (~10k gas):
    - Sets and clears reentrancy lock
 
-**Trade-off:**
-The high gas cost buys you a permanent, tamper-proof audit trail. Every access is logged forever and can be queried by owner or requester. This is expensive but valuable for compliance and accountability.
+**Design Decision:**
+We chose event-based logging over storage arrays for an 83% gas reduction (from ~260k to ~43k). Events provide:
+- Permanent audit trail in transaction logs (on-chain)
+- Indexed parameters for efficient filtering
+- Off-chain queryable via RPC calls
+- No storage slot costs
 
-If this was just consent checking without logging, it would only cost ~50-70k gas. The audit logging adds ~200k gas but provides full transparency.
+The trade-off is that events cannot be queried from within smart contracts (only off-chain), but this is acceptable for an audit logging use case.
 
 **Scalability Test Results:**
 
@@ -173,11 +160,11 @@ Key findings from the scalability tests:
    - 1,000,000 users = 135.7B gas total, still $13.57 per user
    - Cost per user remains constant regardless of scale
 
-3. **AccessData Gas Growth**:
-   - First access: 274,237 gas
-   - 10th access: 245,637 gas
-   - Shows ~10% variation (gas refunds from storage optimization)
-   - Slight variation due to array expansion but stays within expected range
+3. **AccessData Constant Cost**:
+   - All accesses: ~43k gas (< 5% variation)
+   - Proves O(1) complexity with event-based logging
+   - No gas cost increase as access logs grow
+   - Constant time operation regardless of system scale
 
 4. **Theoretical Throughput**:
    - Ethereum (30M gas/block, 12 sec blocks): 221 users/block = 1,105 users/minute
@@ -233,13 +220,13 @@ The terminal output from running demos (blocks 1-10) shows actual transactions:
 - Trust: No central authority needed
 
 **Current Limitations:**
-- Gas costs: AccessData is ~269k gas per access (~$10-50 depending on network)
+- Gas costs: AccessData is ~43k gas per access (~$2-5 depending on network)
   - See gas-report.txt line 18 for exact measurements
-  - High cost due to on-chain audit logging (stores every access permanently)
+  - Cost optimized through event-based audit logging (83% reduction from original 260k)
   - Employer pays this fee each time they verify a credential
-- Scalability: Ethereum mainnet is expensive for frequent credential checks
-  - Each of the 23 AccessData calls in tests cost 245k-274k gas
-  - Popular students (100+ job applications) could generate $1000+ in verification costs (paid by employers)
+- Scalability: While gas-efficient, Ethereum mainnet still has per-transaction costs
+  - Each of the 35 AccessData calls in tests cost consistent ~43k gas
+  - Popular students (100+ job applications) generate predictable verification costs (paid by employers)
 - Storage: Off-chain files still need secure storage solution
   - Right now they're just in student_data/ folder
   - Production needs IPFS, encrypted cloud storage, or email

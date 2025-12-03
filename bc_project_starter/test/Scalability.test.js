@@ -130,13 +130,13 @@ describe("Scalability Analysis", function () {
   });
 
   describe("AccessData Scalability", function () {
-    it("Should measure gas growth as audit log grows", async function () {
+    it("Should show constant gas cost for credential access", async function () {
       const student = accounts[0];
       const employer = accounts[15]; // Use employer from previous test who has consent
       const credTypeHash = ethers.keccak256(ethers.toUtf8Bytes("Bachelor_Diploma"));
       const gasUsed = [];
 
-      // Access same credential 10 times and see if gas increases
+      // Access same credential 10 times to verify constant cost
       for (let i = 0; i < 10; i++) {
         const tx = await dataSharing.connect(employer).AccessData(student.address, credTypeHash);
         const receipt = await tx.wait();
@@ -146,13 +146,20 @@ describe("Scalability Analysis", function () {
       const firstAccess = gasUsed[0];
       const lastAccess = gasUsed[gasUsed.length - 1];
       const avgGas = gasUsed.reduce((a, b) => a + b, 0n) / BigInt(gasUsed.length);
+      const maxDeviation = gasUsed.reduce((max, gas) => {
+        const deviation = gas > avgGas ? gas - avgGas : avgGas - gas;
+        return deviation > max ? deviation : max;
+      }, 0n);
 
       console.log(`\n  10 Sequential AccessData Calls:`);
       console.log(`     First access: ${firstAccess.toString()} gas`);
       console.log(`     Last access: ${lastAccess.toString()} gas`);
-      console.log(`     Growth: ${lastAccess - firstAccess} gas (${((Number(lastAccess - firstAccess) * 100) / Number(firstAccess)).toFixed(2)}%)`);
       console.log(`     Average: ${avgGas.toString()} gas`);
-      console.log(`     Note: Slight growth from array expansion`);
+      console.log(`     Max deviation: ${maxDeviation.toString()} (${(Number(maxDeviation) * 100 / Number(avgGas)).toFixed(2)}%)`);
+      console.log(`     Note: Constant O(1) cost - no on-chain logging, only events`);
+
+      // Cost should be constant (< 5% deviation proves O(1) complexity)
+      expect(maxDeviation).to.be.lt(avgGas / 20n); // Less than 5% deviation
     });
   });
 
@@ -160,7 +167,7 @@ describe("Scalability Analysis", function () {
     it("Should prove gas cost independent of total users", async function () {
       // We now have 20 users registered
       // Compare credential storage cost for user #2 vs user #20
-      // (User #1 already has credentials from Test 3)
+      // (User #1 already has credentials from Test 3, its write cost is less so we use #2)
       const earlyUser = accounts[1];
       const lateUser = accounts[19];
 
@@ -182,11 +189,11 @@ describe("Scalability Analysis", function () {
       console.log(`     Difference: ${receipt2.gasUsed > receipt1.gasUsed ? receipt2.gasUsed - receipt1.gasUsed : receipt1.gasUsed - receipt2.gasUsed} gas`);
       console.log(`     This proves O(1) constant time - cost doesn't increase with network size`);
 
-      // Both should be within expected range for StoreCredential (~93k gas)
-      expect(receipt1.gasUsed).to.be.gt(90000n);
-      expect(receipt1.gasUsed).to.be.lt(96000n);
-      expect(receipt2.gasUsed).to.be.gt(90000n);
-      expect(receipt2.gasUsed).to.be.lt(96000n);
+      // Both should be within expected range for StoreCredential (~71k gas)
+      expect(receipt1.gasUsed).to.be.gt(68000n);
+      expect(receipt1.gasUsed).to.be.lt(75000n);
+      expect(receipt2.gasUsed).to.be.gt(68000n);
+      expect(receipt2.gasUsed).to.be.lt(75000n);
     });
   });
 

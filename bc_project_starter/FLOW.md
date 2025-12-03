@@ -279,8 +279,8 @@ Student                          DataSharing                ConsentManager
 - Granted timestamps
 
 **DataSharing Contract:**
-- Access logs (who accessed what, when)
-- Access denial logs
+- Access event logs (who accessed what, when - stored in transaction logs)
+- Access denial event logs
 - Token reward events
 
 **RewardToken Contract:**

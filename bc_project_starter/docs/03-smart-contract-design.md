@@ -352,24 +352,14 @@ Orchestrates access control, audit logging, and token rewards. This is the main 
 ### State Variables
 
 ```
-Struct: AccessLog {
-    address owner;
-    address requester;
-    bytes32 credentialTypeHash;
-    uint256 timestamp;
-    bool granted;             // true = GRANTED, false = DENIED
-}
-
-Mapping: accessLogs (optional - can use events instead)
-    mapping(uint256 logId => AccessLog)
-    uint256 nextLogId;
-
 Immutable: digitalIdentityContract (IDigitalIdentity)
 Immutable: consentManagerContract (IConsentManager)
 Immutable: rewardTokenContract (IRewardToken or ERC20)
 
 Constants:
     uint256 REWARD_PER_CONSENT = 10 * 10**18;  // 10 tokens (18 decimals)
+
+Note: No AccessLog storage - audit logging handled via events only
 ```
 
 ---
@@ -425,36 +415,23 @@ Constants:
 1. Check consent: `require(ConsentManager.CheckConsent(owner, msg.sender, credentialTypeHash), "Consent invalid or expired")`
 
 **Effects (EFFECTS)**:
-2. Log access (success):
-   - Option A: Store in mapping: `accessLogs[nextLogId++] = AccessLog({...})`
-   - Option B: Only emit event (gas-efficient) ← **Recommended**
+2. Emit event for audit logging:
+   - Success: Emit `AccessGranted(owner, msg.sender, credentialTypeHash, hash, block.timestamp)`
+   - Failure: Emit `AccessDenied(owner, msg.sender, credentialTypeHash, reason, block.timestamp)`
 
 **Interactions (INTERACTIONS)**:
 3. Retrieve credential hash: `bytes32 hash = DigitalIdentity.GetCredentialHash(owner, credentialTypeHash)`
-4. Emit `AccessGranted(owner, msg.sender, credentialTypeHash, hash, block.timestamp)`
 
 **Returns**: `credentialHash` (bytes32)
 
-**Error Handling**: If consent check fails, revert with custom error:
+**Error Handling**: If consent check fails, emit AccessDenied event and revert with custom error:
 ```
 error ConsentInvalid();
-error ConsentExpired();
-error ConsentNotFound();
 ```
 
 ---
 
-#### 4. LogDeniedAccess(address owner, bytes32 credentialTypeHash, string reason) [INTERNAL]
-
-**Access**: Internal, called when access is denied
-
-**Purpose**: Log failed access attempts
-
-**Effects**:
-- Emit `AccessDenied(owner, msg.sender, credentialTypeHash, reason, block.timestamp)`
-- Optionally store in `accessLogs` mapping
-
-**Notes**: Called from try-catch or require failures
+**Note**: No separate LogDeniedAccess function needed - AccessDenied events are emitted inline when access is denied
 
 ---
 
@@ -492,7 +469,7 @@ event TokensRewarded(
 |------|------------|
 | Reentrancy on token mint | Use ReentrancyGuard (OpenZeppelin) |
 | Failed credential retrieval | Wrap in require/try-catch |
-| Gas griefing (logging) | Use events instead of storage |
+| Gas costs | Use events-only (no storage arrays) |
 | Unauthorized access | Consent check BEFORE retrieving data |
 | Front-running | Not applicable (consent is pre-existing) |
 
@@ -629,9 +606,10 @@ interface IRewardToken {
 | Use `immutable` for contract refs | DataSharing | ~2100 gas/read |
 | Custom errors instead of strings | All contracts | ~20 gas/revert |
 | Delete instead of marking revoked | ConsentManager | Gas refund |
+| Events instead of storage arrays | DataSharing | 83% reduction (~217k gas savings) |
 | Batch operations (future) | All contracts | Amortized cost |
 
-**Trade-off Made**: We chose on-chain audit logging (AccessLog array) over events-only approach. This costs an additional ~200k gas per access but provides queryable, permanent audit trail for compliance. Events alone would save ~5000 gas/log but require off-chain indexing.
+**Trade-off Made**: We chose events-only approach over storage arrays for audit logging. This reduces AccessData gas cost by 83% (from ~260k to ~43k). Events provide permanent audit trail queryable off-chain, which is sufficient for compliance needs. The trade-off is that events cannot be queried from within smart contracts, only off-chain via RPC.
 
 ---
 
@@ -703,11 +681,11 @@ interface IRewardToken {
 ### Gas Cost Tests
 - Measure deployment costs (each contract)
 - Measure function execution costs:
-  - RegisterUser: ~135,724 gas
-  - StoreCredential: ~92,541 gas
-  - SetConsent: ~104,205 gas
-  - GrantConsentAndReward: ~163,444 gas
-  - AccessData: ~269,750 gas (includes on-chain audit logging)
+  - RegisterUser: ~113,479 gas
+  - StoreCredential: ~70,707 gas
+  - SetConsent: ~101,926 gas
+  - GrantConsentAndReward: ~150,385 gas
+  - AccessData: ~42,914 gas (event-based logging only)
   - RevokeConsent: ~34,271 gas
 - Optimize functions that exceed budget
 

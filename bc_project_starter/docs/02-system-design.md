@@ -78,33 +78,33 @@ This table defines the structure of consent records.
 
 ### 1.4 Access Log Model
 
-This table defines what data is logged for each access attempt.
+This table defines what data is logged for each access attempt via events.
 
-| Attribute | Example Value | On-Chain? | Off-Chain? | Hashed? | Storage Type |
-|-----------|---------------|-----------|------------|---------|--------------|
-| Log ID | Auto-generated | Yes | No | No | uint256 |
-| Owner (Student) Address | `0x742d35Cc...` | Yes | No | No | address |
-| Requester Address | `0x8c1a3B...` | Yes | No | No | address |
-| Credential Type Hash | `keccak256("Diploma")` | Yes | No | N/A | bytes32 |
-| Access Timestamp | 1702000000 | Yes | No | No | uint256 |
-| Access Result | GRANTED / DENIED | Yes | No | No | enum |
-| Failure Reason (if denied) | "ConsentExpired" | Yes | No | No | string |
+| Attribute | Example Value | Logged in Event? | Storage Type |
+|-----------|---------------|------------------|--------------|
+| Owner (Student) Address | `0x742d35Cc...` | Yes (indexed) | address |
+| Requester Address | `0x8c1a3B...` | Yes (indexed) | address |
+| Credential Type Hash | `keccak256("Diploma")` | Yes (indexed) | bytes32 |
+| Credential Hash | `0xabc123...` | Yes (if granted) | bytes32 |
+| Access Timestamp | 1702000000 | Yes | uint256 |
+| Access Result | GRANTED / DENIED | Yes (event type) | N/A |
+| Failure Reason (if denied) | "ConsentExpired" | Yes | string |
 
 **Why this design?**
-- **All data on-chain**: Audit trail must be immutable and verifiable
-- **Events vs Storage**: Use events (cheaper) OR storage array (queryable)
-  - Events: Gas-efficient (~5k gas per log)
-  - Storage array: On-chain queryable but expensive (~200k additional gas)
-- **Access Result enum**: `enum AccessResult { GRANTED, DENIED }`
+- **Event-based logging**: Audit trail is immutable and permanently stored in transaction logs
+- **Gas-efficient**: Events cost ~375 gas per log entry + ~375 gas per indexed topic
+- **Indexed parameters**: Owner, requester, and credential type are indexed for efficient filtering
+- **Off-chain queryable**: Events can be filtered and queried via RPC calls (ethers.js, viem, etc.)
 
-**Log Storage Trade-off**:
-| Approach | Pros | Cons |
-|----------|------|------|
-| **Events only** | Gas-efficient, permanent | Requires off-chain event filtering |
-| **Storage array** | On-chain queryable | High gas cost (~269k gas per access) |
-| **Hybrid** | Best of both | More complex |
+**Event-Based Approach Benefits**:
+| Benefit | Explanation |
+|---------|-------------|
+| **Gas-efficient** | ~8k gas per log vs ~200k for storage arrays |
+| **Permanent** | Events are part of transaction receipts, stored forever on blockchain |
+| **Indexed** | First 3 parameters are indexed topics for efficient filtering |
+| **No storage bloat** | Doesn't increase contract storage size |
 
-**Implementation Choice**: We chose storage array (hybrid approach) for full transparency and compliance. AccessData costs ~269k gas but provides queryable audit trail. Events are also emitted for off-chain indexing.
+**Implementation Choice**: We chose events-only approach for 83% gas savings. AccessData costs ~43k gas instead of ~260k. Events provide permanent audit trail queryable off-chain, which is sufficient for compliance and transparency needs.
 
 ---
 

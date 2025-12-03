@@ -131,12 +131,12 @@ educhain-platform/
 │       ├── IConsentManager.sol
 │       └── IRewardToken.sol
 ├── test/
-│   ├── DigitalIdentity.test.js
-│   ├── ConsentManager.test.js
-│   ├── RewardToken.test.js
-│   ├── DataSharing.audit.test.js
-│   ├── Integration.test.js
-│   └── Scalability.test.js
+│   ├── DigitalIdentity.test.js       # 19 tests
+│   ├── ConsentManager.test.js         # 26 tests
+│   ├── RewardToken.test.js            # 19 tests
+│   ├── DataSharing.audit.test.js      # 5 tests (event-based auditing)
+│   ├── Integration.test.js            # 13 tests
+│   └── Scalability.test.js            # 8 tests
 ├── scripts/
 │   ├── deploy.js
 │   └── interact.js
@@ -377,7 +377,7 @@ describe("Scalability Analysis", function () {
   });
 
   describe("AccessData Scalability", function () {
-    it("Should measure gas growth as audit log grows", async function () {});
+    it("Should show constant gas cost for credential access", async function () {});
   });
 
   describe("Network Size Independence", function () {

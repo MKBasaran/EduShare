@@ -249,17 +249,14 @@
    - Consent not revoked
 3. If valid:
    - Return credential hash
-   - Log access: `AccessLog(owner, requester, credentialType, timestamp, GRANTED)`
-   - Emit `AccessGranted` event
+   - Emit `AccessGranted` event with all details
 4. If invalid:
+   - Emit `AccessDenied` event with reason
    - Revert with error
-   - Log failed attempt: `AccessLog(owner, requester, credentialType, timestamp, DENIED)`
-   - Emit `AccessDenied` event
 
 **Outputs**:
 - Credential hash returned (if access granted)
-- Access log entry created
-- `AccessGranted` or `AccessDenied` event emitted
+- `AccessGranted` or `AccessDenied` event emitted with all relevant data
 
 **Acceptance Criteria**:
 - No consent = access denied
@@ -273,7 +270,7 @@
 
 ### FR-6: Audit Logging
 
-**Description**: Every credential access attempt is logged immutably on-chain.
+**Description**: Every credential access attempt is logged immutably on-chain via events.
 
 **Actor**: System (automatic)
 
@@ -281,24 +278,28 @@
 - Owner address (student)
 - Requester address
 - Credential type hash
+- Credential hash (if granted)
 - Timestamp (block.timestamp)
-- Status: GRANTED or DENIED
+- Status: GRANTED or DENIED (via event type)
+- Reason (if denied)
 
 **Process**:
 - Logs are automatically created during `AccessData()`
-- Logs are append-only (cannot be deleted or modified)
-- Logs stored in array or emitted as events
+- Logs are emitted as events (stored in transaction logs)
+- Events are indexed for efficient filtering
+- No storage arrays needed (gas-efficient)
 
 **Outputs**:
-- `AccessLog` event emitted
-- Optionally stored in contract storage for querying
+- `AccessGranted` or `AccessDenied` event emitted
+- Events permanently stored in blockchain transaction logs
 
 **Acceptance Criteria**:
-- Every access attempt logged
-- Logs are immutable
-- Students can query logs for their credentials
-- Requesters can query logs for their access attempts
+- Every access attempt logged via events
+- Logs are immutable (part of transaction receipts)
+- Students can query logs for their credentials (off-chain via RPC)
+- Requesters can query logs for their access attempts (off-chain via RPC)
 - Logs include both success and failure
+- Events use indexed parameters for efficient filtering
 
 ---
 
@@ -419,9 +420,8 @@
    - Consent revoked? NO
 3. Access GRANTED:
    - Contract retrieves credentialHash from DigitalIdentity contract
+   - Contract emits: AccessGranted(student, employer, credentialType, credentialHash, timestamp)
    - Contract returns credentialHash to employer
-   - Contract logs: AccessLog(student, employer, credentialType, timestamp, GRANTED)
-   - Event emitted: AccessGranted(student, employer, credentialType, credentialHash)
 4. Employer uses hash to fetch off-chain diploma file
 5. Employer verifies hash matches file content
 ```
@@ -448,9 +448,8 @@
    - Consent exists? YES
    - block.timestamp < consent.expiry? NO (expired)
 3. Access DENIED:
+   - Contract emits: AccessDenied(student, employer, credentialType, "expired", timestamp)
    - Contract reverts with error: "ConsentExpired()"
-   - Contract logs: AccessLog(student, employer, credentialType, timestamp, DENIED)
-   - Event emitted: AccessDenied(student, employer, reason="expired")
 4. Employer cannot access credential
 ```
 
@@ -459,12 +458,12 @@
 ### Interaction 8: Student Views Audit Logs
 
 ```
-1. Student queries AccessLog events filtered by their address
+1. Student queries AccessGranted and AccessDenied events filtered by their address (off-chain via RPC)
 2. Results show:
-   - Employer A accessed Bachelor_Diploma on 2024-01-15 (GRANTED)
-   - Employer B tried to access Transcript on 2024-01-20 (DENIED - no consent)
-   - University C accessed Transcript on 2024-01-22 (GRANTED)
-3. Student has full transparency
+   - Employer A accessed Bachelor_Diploma on 2024-01-15 (AccessGranted event)
+   - Employer B tried to access Transcript on 2024-01-20 (AccessDenied event - no consent)
+   - University C accessed Transcript on 2024-01-22 (AccessGranted event)
+3. Student has full transparency through event logs
 ```
 
 ---
